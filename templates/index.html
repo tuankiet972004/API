@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Flask API Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 1rem 0;
+            text-align: center;
+        }
+        main {
+            padding: 2rem;
+            text-align: center;
+        }
+        footer {
+            margin-top: 2rem;
+            background-color: #ddd;
+            color: #333;
+            padding: 1rem 0;
+            text-align: center;
+        }
+        .button {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            margin: 1rem 0;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Welcome to Flask API Demo</h1>
+    </header>
+    <main>
+        <p>This is a simple web interface for your Flask API.</p>
+        <a href="/api/questions" class="button">Get Question</a>
+        <br>
+        <!-- Button to go to Add Question page -->
+        <a href="/add-question" class="button">Add Question </a>
+        <a href="/add-answer" class="button">Add Answer</a>
+    </main>
+</body>
+</html>

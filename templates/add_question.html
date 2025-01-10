@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Add Question</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 1rem 0;
+            text-align: center;
+        }
+        main {
+            padding: 2rem;
+            text-align: center;
+        }
+        footer {
+            margin-top: 2rem;
+            background-color: #ddd;
+            color: #333;
+            padding: 1rem 0;
+            text-align: center;
+        }
+        .button {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            margin: 1rem 0;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        form {
+            margin-top: 20px;
+        }
+        input {
+            padding: 10px;
+            font-size: 1rem;
+            width: 80%;
+            margin-bottom: 1rem;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Add a New Question</h1>
+    </header>
+    <main>
+        <form id="questionForm">
+            <input type="text" id="question" placeholder="Enter your question" required>
+            <button type="submit" class="button">Add Question</button>
+        </form>
+
+        <div id="response"></div>
+        <br><br>
+        <a href="/" class="button">Back to Home</a>
+    </main>
+
+    <script>
+        document.getElementById("questionForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const question = document.getElementById("question").value;
+
+            // Gửi câu hỏi tới API để thêm vào danh sách câu hỏi
+            fetch('/api/questions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ question: question })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const responseDiv = document.getElementById("response");
+                responseDiv.innerHTML = `<strong>Question Added:</strong> ${data.question}`;
+            })
+            .catch(error => {
+                alert('Error adding question');
+            });
+        });
+    </script>
+</body>
+</html>
