@@ -1,93 +1,81 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
 
-users = [{"id": 1, "name": "John Doe", "email": "john@example.com"}]
-
-@app.route('/')
-def index():
-    return render_template('index.html')
+# Dữ liệu giả lập (có thể thay bằng database hoặc hệ thống lưu trữ khác)
+sessions = {}  # Dùng để lưu trữ câu trả lời của từng session
 
 
-# Dữ liệu câu hỏi mẫu
-qa_data = [
-    {
-        "question": "What is Flask?",
-    },
-    {
-        "question": "How to add a new user?",
-    },
-    {
-        "question": "Who is HauLee?",
-    }
-]
+# Endpoint 1: Nhận bộ câu hỏi từ web test và tạo form
+@app.route('/questions', methods=['POST'])
+def send_questions():
+    data = request.json
+    questions = data.get('questions', [])
 
-# Lấy danh sách câu hỏi và câu trả lời
-@app.route('/api/questions', methods=['GET'])
-def get_questions():
-    return jsonify(qa_data)
-#hiển thị câu hỏi
-def get_questions():
-    return jsonify(qa_data)
+    # Tạo session_id ngẫu nhiên hoặc sử dụng UUID
+    session_id = "abc123"  # Giả lập session_id
+    sessions[session_id] = {}
 
+    # Tạo HTML form từ câu hỏi
+    form_html = f'''
+    <html>
+    <head><title>Answer the Questions</title></head>
+    <body>
+        <h1>Answer the Questions</h1>
+        <form id="answerForm" onsubmit="submitAnswers(event)">
+    '''
 
-# Thêm câu hỏi mới
-@app.route('/api/questions', methods=['POST'])
-def add_question():
-    data = request.get_json()
-    question = data.get("question")
+    for q in questions:
+        form_html += f'<label>{q["question"]}</label><br>'
+        form_html += f'<input type="text" name="question_{q["id"]}" required><br><br>'
 
-    if not question:
-        return jsonify({"message": "Please provide a question."}), 400
+    form_html += '''
+        <button type="submit">Submit Answers</button>
+        </form>
+    </body>
+    </html>
+    '''
 
-    new_question = {
-        "question": question,
-        "answer": ""  # Không cần câu trả lời khi thêm câu hỏi
-    }
-    qa_data.append(new_question)
-    return jsonify(new_question), 201
+    return jsonify({
+        "status": "success",
+        "session_id": session_id,
+        "form_html": form_html
+    })
 
 
-# Trang thêm câu hỏi
-@app.route('/add-question')
-def add_question_page():
-    return render_template('add_question.html')
+# Endpoint 2: Nhận và lưu câu trả lời của người dùng
+@app.route('/submit_answers/<session_id>', methods=['POST'])
+def submit_answers(session_id):
+    # Kiểm tra các giá trị gửi đến từ form
+    answers = []
+    for key, value in request.json.items():
+        parts = key.split("_")
+        if len(parts) == 2:  # Kiểm tra xem có đủ phần tử
+            question_id = int(parts[1])  # Lấy id câu hỏi từ tên trường
+            answers.append({"id": question_id, "answer": value})
 
-#Trang trả lời câu hỏi
-@app.route('/add-answer')
-def ask_question_page():
-    return render_template('add_answer.html')
+    # Lưu câu trả lời vào session
+    sessions[session_id] = answers
 
-#hiển thị câu hỏi
-def get_questions():
-    return jsonify(qa_data)
+    # Trả lại câu trả lời cho web test
+    return jsonify({
+        "status": "completed",
+        "session_id": session_id,
+        "answers": answers
+    })
 
 
-# Trả lời câu hỏi
-@app.route('/api/answer', methods=['POST'])
-def answer_question():
-    data = request.get_json()
-    question = data.get('question')
-    answer = data.get('answer')
-
-    if not question or not answer:
-        return jsonify({"message": "Please provide both question and answer."}), 400
-
-    # Tìm câu hỏi và lưu câu trả lời vào dữ liệu
-    for qa in qa_data:
-        if qa['question'].lower() == question.lower():
-            qa['answer'] = answer
-            # Tìm câu hỏi tiếp theo
-            next_question_index = qa_data.index(qa) + 1
-            if next_question_index < len(qa_data):
-                next_question = qa_data[next_question_index]['question']
-                return jsonify({"message": "Answer has been saved!", "next_question": next_question}), 200
-            else:
-                return jsonify({"message": "You've answered all the questions!"}), 200
-
-    return jsonify({"message": "Question not found."}), 404
+# Endpoint 3: Lấy câu trả lời của người dùng từ session
+@app.route('/answers/<session_id>', methods=['GET'])
+def get_answers(session_id):
+    answers = sessions.get(session_id, [])
+    return jsonify({
+        "status": "completed",
+        "session_id": session_id,
+        "answers": answers
+    })
 
 
 if __name__ == '__main__':
