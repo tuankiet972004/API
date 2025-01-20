@@ -3,97 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test API</title>
-    <script>
-        // Giữ sessionId và câu hỏi
-        let sessionId = null;
 
-        // Gửi câu hỏi và nhận form HTML
-        async function sendQuestions() {
-            const questions = [
-                { id: 1, question: "What is your name?" },
-                { id: 2, question: "What is your phone number?" },
-                { id: 3, question: "What is your email?" }
-            ];
-
-            try {
-                const response = await fetch("http://127.0.0.1:5000/questions", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ questions: questions })
-                });
-
-                const data = await response.json();
-                if (data.status === "success") {
-                    sessionId = data.session_id;
-                    document.getElementById("form-container").innerHTML = data.form_html;
-                } else {
-                    document.getElementById("result").innerText = "Failed to fetch form.";
-                }
-            } catch (error) {
-                console.error("Error:", error);
-                document.getElementById("result").innerText = "An error occurred.";
-            }
+    <title>Flask API Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
         }
-
-        // Xử lý câu trả lời và gửi đến API
-        async function submitAnswers(event) {
-            event.preventDefault(); // Ngừng hành động mặc định của form (tránh reload trang)
-
-            const formData = new FormData(event.target);
-            const answers = {};
-            formData.forEach((value, key) => {
-                const questionId = `question_${key.split("_")[1]}`;
-                answers[questionId] = value;
-            });
-
-            // Gửi câu trả lời đến API
-            try {
-                const response = await fetch(`http://127.0.0.1:5000/submit_answers/${sessionId}`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(answers)
-                });
-
-                const data = await response.json();
-                if (data.status === "completed") {
-                    document.getElementById("result").innerHTML = "Answers submitted successfully!";
-                } else {
-                    document.getElementById("result").innerText = "Failed to submit answers.";
-                }
-            } catch (error) {
-                console.error("Error:", error);
-                document.getElementById("result").innerText = "An error occurred.";
-            }
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 1rem 0;
+            text-align: center;
         }
-
-        // Gửi câu trả lời của người dùng và nhận lại câu trả lời
-        async function getAnswers() {
-            if (!sessionId) {
-                document.getElementById("result").innerText = "No session ID found.";
-                return;
-            }
-
-            const response = await fetch(`http://127.0.0.1:5000/answers/${sessionId}`);
-            const data = await response.json();
-
-            if (data.status === "completed") {
-                const answersHtml = data.answers.map(ans => `<p>Question ${ans.id}: ${ans.answer}</p>`).join("");
-                document.getElementById("result").innerHTML = `
-                    <h3>Answers</h3>
-                    ${answersHtml}
-                `;
-            } else {
-                document.getElementById("result").innerText = "No answers available yet.";
-            }
+        main {
+            padding: 2rem;
+            text-align: center;
         }
-    </script>
+        footer {
+            margin-top: 2rem;
+            background-color: #ddd;
+            color: #333;
+            padding: 1rem 0;
+            text-align: center;
+        }
+        .button {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            margin: 1rem 0;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-    <h1>Test API</h1>
-    <button onclick="sendQuestions()">Collect Information</button>
-    <div id="form-container"></div>
-    <button onclick="getAnswers()">Get Answers</button>
-    <div id="result"></div>
+    <header>
+        <h1>Welcome to Flask API Demo</h1>
+    </header>
+    <main>
+        <p>This is a simple web interface for your Flask API.</p>
+        <a href="/api/questions" class="button">Get Question</a>
+        <br>
+        <!-- Button to go to Add Question page -->
+        <a href="/add-question" class="button">Add Question </a>
+        <a href="/add-answer" class="button">Add Answer</a>
+    </main>
 </body>
 </html>
